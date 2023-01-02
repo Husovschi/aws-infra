@@ -5,20 +5,23 @@ pipeline {
         choice(name: 'Command', choices: ['plan', 'apply', 'destroy'], description: '')
     }
 
-    environment {
-        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-    }
-
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
         stage('Plan') {
             steps {
                 script {
-                    sh 'terraform init'
-                    sh 'terraform plan'
+                    withCredentials([[$class: 'VaultUsernamePasswordCredentialBinding', credentialsId: 'vault-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID']]) {
+                        sh 'terraform init'
+                        sh 'terraform plan'
+                    }
                 }
             }
         }
+
         stage('Approval') {
             when {
                 not {
@@ -31,6 +34,7 @@ pipeline {
                 }
             }
         }
+
         stage('Run command') {
             when {
                 not {
@@ -38,7 +42,9 @@ pipeline {
                 }
             }
             steps {
-                sh 'terraform ' + params.Command
+                withCredentials([[$class: 'VaultUsernamePasswordCredentialBinding', credentialsId: 'vault-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID']]) {
+                    sh 'terraform ' + params.Command + ' -auto-approve'
+                }
             }
         }
     }
