@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 'terraform-docker-agent'
+    }
 
     parameters {
         choice(name: 'Command', choices: ['plan', 'apply', 'destroy'], description: '')
