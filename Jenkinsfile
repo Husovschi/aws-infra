@@ -48,7 +48,7 @@ pipeline {
             }
             steps {
                 withCredentials([[$class: 'VaultUsernamePasswordCredentialBinding', credentialsId: 'vault-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID']]) {
-                    sh 'terraform ' + params.Command + '-no-color -auto-approve'
+                    sh 'terraform ' + params.Command + ' -no-color -auto-approve'
                 }
             }
         }
