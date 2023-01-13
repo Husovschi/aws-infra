@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([[$class: 'VaultUsernamePasswordCredentialBinding', credentialsId: 'vault-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID']]) {
-                        sh 'terraform plan'
+                        sh 'terraform plan -no-color -out=tfplan'
                     }
                 }
             }
